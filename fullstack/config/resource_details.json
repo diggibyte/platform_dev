@@ -1,0 +1,67 @@
+{
+  "key_vaults": [
+    {
+      "name": "DGB-KV-FS-DEV-001",
+      "resource_group_name": "DGB-RG-FS-DEV-001",
+      "sku": "standard",
+      "key_permissions": ["Get", "Create", "Delete"],
+      "secret_permissions": ["Get", "Set", "Delete"],
+      "storage_permissions": ["Get", "Set", "Delete"]
+    }
+  ],
+  "virtual_networks": [
+    {
+      "name": "DGB-VN-FS-DEV-001",
+      "resource_group_name": "DGB-RG-FS-DEV-001",
+      "address_space": ["10.2.0.0/16"],
+      "tags": {
+        "Domain": "Fullstack",
+        "Env": "test",
+        "Description": ""
+      }
+    }
+  ],
+  "virtual_subnets": [
+    {
+      "name": "DGB-SBN-FS-DEV-001",
+      "resource_group_name": "DGB-RG-FS-DEV-001",
+      "virtual_network_name": "DGB-VN-FS-DEV-001",
+      "address_prefixes": ["10.2.0.0/16"]
+    }
+  ],
+  "virtual_network_interface": [
+    {
+      "name": "DGB-VNI-FS-DEV-001",
+      "resource_group_name": "DGB-RG-FS-DEV-001",
+      "ip_config_name": "internal",
+      "subnet_name": "DGB-SBN-FS-DEV-001",
+      "public_ip": "DGB-IP-VM-FS-DEV-001"
+    }
+  ],
+  "public_ips": [
+    {
+      "name": "DGB-IP-VM-FS-DEV-001",
+      "resource_group_name": "DGB-RG-FS-DEV-001"
+    }
+  ],
+  "virtual_machines": [
+    {
+      "name": "DGB-VM-FS-DEV-001",
+      "resource_group_name": "DGB-RG-FS-DEV-001",
+      "size": "Standard_B2s",
+      "admin_username": "adminfsdev001",
+      "network_interface_names": ["DGB-VNI-FS-DEV-001"],
+      "os_disk": {
+        "caching": "ReadWrite",
+        "storage_account_type": "StandardSSD_LRS"
+      },
+      "source_image_reference": {
+        "publisher": "Canonical",
+        "offer": "0001-com-ubuntu-server-focal",
+        "sku": "20_04-lts-gen2",
+        "version": "20.04.202209200"
+      },
+      "key_vault": "DGB-KV-FS-DEV-001"
+    }
+  ]
+}

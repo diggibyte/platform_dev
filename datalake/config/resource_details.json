@@ -1,0 +1,29 @@
+{
+  "azure_data_factories": [
+    {
+      "name": "DGB-ADF-DL-DEV-001",
+      "location": "SouthEast Asia"
+    }
+  ],
+  "adls_gen_2": [
+    {
+      "name": "dgbstdldev001",
+      "resource_group_name": "DGB-RG-DL-DEV-001"
+    }
+  ],
+  "auzure_databricks": [
+    {
+      "name": "DGB-DB-DL-DEV-001",
+      "sku": "standard",
+      "resource_group_name": "DGB-RG-DL-DEV-001",
+      "advanced_config": "false",
+      "location": "Central India"
+    }
+  ],
+  "key_vaults": [
+    {
+      "name": "DGB-KV-DL-DEV-001",
+      "sku": "standard"
+    }
+  ]
+}

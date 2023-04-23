@@ -1,0 +1,74 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:  # Branch names to include or exclude for triggering a run.
+      include: [ main, devlopment ] # List of items to include. 
+      exclude: [ eda, nyt_dlt, feature/demo_branch ] # List of item to exclude (This is optional)
+
+  tags:
+    include:
+      - v*.*
+      - prod
+
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- script: |
+    
+    REPO_PAT=$(PAT_TFMODULE)
+    B64_PAT=$(printf "%s"":$REPO_PAT" | base64)
+    # git -c http.extraHeader="Authorization: Basic ${B64_PAT}" clone https://dev.azure.com/diggibyte/diggibyte-platform/_git/platform_dev
+    git -c http.extraHeader="Authorization: Basic ${B64_PAT}" submodule add https://dev.azure.com/diggibyte/diggibyte-platform/_git/platform_tfmodules
+    ls -ltr
+  displayName: 'Checkout Latest with submodule update'
+- task: TerraformCLI@0
+  inputs:
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    backendType: 'selfConfigured'
+    allowTelemetryCollection: true
+  env:
+    TF_VAR_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+    TF_VAR_TENANT_ID: $(ARM_TENANT_ID)
+    TF_VAR_CLIENT_ID: $(ARM_CLIENT_ID)
+    TF_VAR_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+
+- task: TerraformCLI@0
+  inputs:
+     command: 'fmt'
+     workingDirectory: '$(System.DefaultWorkingDirectory)'
+     allowTelemetryCollection: true
+- task: TerraformCLI@0
+  inputs:
+     command: 'plan'
+     workingDirectory: '$(System.DefaultWorkingDirectory)'
+     allowTelemetryCollection: true
+  env:
+     TF_VAR_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+     TF_VAR_TENANT_ID: $(ARM_TENANT_ID)
+     TF_VAR_CLIENT_ID: $(ARM_CLIENT_ID)
+     TF_VAR_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+     ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      **/*
+      !.git/**/*
+      !.terraform*
+      !.terraform.lock.hcl
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: '_terraform_platform'
+    publishLocation: 'Container'
+
